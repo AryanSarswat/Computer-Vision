@@ -7,7 +7,97 @@ import math
 
 ##### Part 1: image preprossessing #####
 
-s
+def rgb2gray(img):
+    """
+    5 points
+    Convert a colour image greyscale
+    Use (R,G,B)=(0.299, 0.587, 0.114) as the weights for red, green and blue channels respectively
+    :param img: numpy.ndarray (dtype: np.uint8)
+    :return img_gray: numpy.ndarray (dtype:np.uint8)
+    """
+    if len(img.shape) != 3:
+        print('RGB Image should have 3 channels')
+        return
+    
+    ###Your code here###
+    RGB2GRAY = lambda RGB : 0.299 * RGB[0] + 0.587 * RGB[1] + 0.114 * RGB[2]
+    img_gray = RGB2GRAY(img).astype("uint8")
+    ###
+    return img_gray 
+
+def convolve(img, kernel, k):
+    """
+    Performs a convolution operation on a image img and kernel of size k (where k is the the number of )
+    """
+    padded_image = pad_zeros(img, k, k, k, k)
+    height, width = img.shape[:2]
+    convolved_image = np.zeros((height,width))
+    for h in range(k, height + k):
+        for w in range(k, width + k):
+            new_pixel = 0
+            for a in range(-k,k+1,1):
+                for b in range(-k, k+1, 1):
+                    new_pixel += padded_image[h - a][w - b] * kernel[a + k][b + k]
+            convolved_image[h - k][w - k] = new_pixel
+    return convolved_image.astype("uint8")
+
+def gray2grad(img):
+    """
+    5 points
+    Estimate the gradient map from the grayscale images by convolving with Sobel filters (horizontal and vertical gradients) and Sobel-like filters (gradients oriented at 45 and 135 degrees)
+    The coefficients of Sobel filters are provided in the code below.
+    :param img: numpy.ndarray
+    :return img_grad_h: horizontal gradient map. numpy.ndarray
+    :return img_grad_v: vertical gradient map. numpy.ndarray
+    :return img_grad_d1: diagonal gradient map 1. numpy.ndarray
+    :return img_grad_d2: diagonal gradient map 2. numpy.ndarray
+    """
+    sobelh = np.array([[-1, 0, 1], 
+                       [-2, 0, 2], 
+                       [-1, 0, 1]], dtype = float)
+    sobelv = np.array([[-1, -2, -1], 
+                       [0, 0, 0], 
+                       [1, 2, 1]], dtype = float)
+    sobeld1 = np.array([[-2, -1, 0],
+                        [-1, 0, 1],
+                        [0,  1, 2]], dtype = float)
+    sobeld2 = np.array([[0, -1, -2],
+                        [1, 0, -1],
+                        [2, 1, 0]], dtype = float)
+    
+    ###Your code here####
+    img_grad_h = convolve(img, sobelh , 1)
+    img_grad_v = convolve(img, sobelv, 1)
+    img_grad_d1 = convolve(img, sobeld1, 1)
+    img_grad_d2 = convolve(img, sobeld2, 1)
+    ###
+    return img_grad_h, img_grad_v, img_grad_d1, img_grad_d2
+
+def pad_zeros(img, pad_height_bef, pad_height_aft, pad_width_bef, pad_width_aft):
+    """
+    5 points
+    Add a border of zeros around the input images so that the output size will match the input size after a convolution or cross-correlation operation.
+    e.g., given matrix [[1]] with pad_height_bef=1, pad_height_aft=2, pad_width_bef=3 and pad_width_aft=4, obtains:
+    [[0 0 0 0 0 0 0 0]
+    [0 0 0 1 0 0 0 0]
+    [0 0 0 0 0 0 0 0]
+    [0 0 0 0 0 0 0 0]]
+    :param img: numpy.ndarray
+    :param pad_height_bef: int
+    :param pad_height_aft: int
+    :param pad_width_bef: int
+    :param pad_width_aft: int
+    :return img_pad: numpy.ndarray. dtype is the same as the input img. 
+    """
+    height, width = img.shape[:2]
+    new_height, new_width = (height + pad_height_bef + pad_height_aft), (width + pad_width_bef + pad_width_aft)
+    img_pad = np.zeros((new_height, new_width)) if len(img.shape) == 2 else np.zeros((new_height, new_width, img.shape[2]))
+
+    ###Your code here###
+    for h in range(height):
+        for w in range(width):
+             img_pad[h + pad_height_bef][w + pad_width_bef] = img[h][w]
+    return img_pad
 
 
 ##### Part 2: Normalized Cross Correlation #####
