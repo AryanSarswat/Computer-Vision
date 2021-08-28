@@ -27,7 +27,9 @@ def rgb2gray(img):
 
 def convolve(img, kernel, k):
     """
-    Performs a convolution operation on a image img and kernel of size k (where k is the the number of )
+    Performs a convolution operation on a image img and kernel of size k. It pads the original image with 0's so that the return image is the same size as the original image.
+    :param img: numpy.ndarray
+    :return convolved_image: numpy.ndarray (dtype: np.uint8)
     """
     padded_image = pad_zeros(img, k, k, k, k)
     height, width = img.shape[:2]
